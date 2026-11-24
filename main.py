@@ -14,7 +14,18 @@ ENTRY = (
 )
 
 
+def validate_entry() -> None:
+    """Gate: entry must be exactly 1 sentence, exactly 1 line, <200 UTF-8 chars."""
+    assert "\n" not in ENTRY and "\r" not in ENTRY, "entry must be exactly 1 line"
+    assert len(ENTRY) < 200, f"entry too long: {len(ENTRY)} chars"
+    assert len(ENTRY.encode("utf-8")) < 200, "entry too long in UTF-8 bytes"
+    terminators = sum(ENTRY.count(c) for c in ".!?")
+    assert terminators == 1, f"entry must be exactly 1 sentence, found {terminators} terminators"
+    assert ENTRY.strip().endswith((".", "!", "?")), "entry must end with sentence terminator"
+
+
 def main() -> None:
+    validate_entry()
     os.makedirs("/output", exist_ok=True)
     with open("/output/entry.txt", "w", encoding="utf-8") as f:
         f.write(ENTRY)
